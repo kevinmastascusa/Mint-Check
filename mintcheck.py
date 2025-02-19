@@ -2,16 +2,27 @@ import cv2
 import numpy as np
 from skimage import measure, feature
 import matplotlib.pyplot as plt
+
+# New: Gamma correction function
+def gamma_correction(image, gamma=0.5):
+    invGamma = 1.0 / gamma
+    table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
+    return cv2.LUT(image, table)
+
 def load_and_preprocess(image_path):
     """
     1) Read the image.
     2) Convert to grayscale.
     3) Possibly do some noise reduction.
+    4) Apply gamma correction if image is overexposed.
     """
     img = cv2.imread(image_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # Optional: denoise if needed
     gray = cv2.GaussianBlur(gray, (3,3), 0)
+    if np.mean(gray) >= 250:
+        print("Image is overexposed; applying gamma correction")
+        gray = gamma_correction(gray, gamma=0.5)
     return img, gray
 
 def find_card_contour(img, gray):
@@ -87,33 +98,52 @@ def four_point_transform(image, pts):
 
 def measure_centering(warped):
     """
-    Measure border widths to evaluate centering without histogram equalization.
-    Assumes the printed region is dark against a lighter background.
+    Measure border widths to evaluate centering.
+    Uses adaptive thresholding to better handle real card images.
+    Additional debug prints and alternative thresholding options added.
     """
-    # Convert to grayscale
     gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+    print(f"Gray mean: {np.mean(gray):.2f}, std: {np.std(gray):.2f}")
     
-    # Use a fixed threshold on the raw image
-    ret, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
-    
-    # Display thresholded image for debugging
+    # Try adaptive thresholding with current parameters
+    thresh = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 3
+    )
     plt.imshow(thresh, cmap='gray')
-    plt.title('Thresholded Image')
+    plt.title('Adaptive Thresholded Image (Block=15, C=3)')
     plt.show()
     
-    # Find bounding box of printed region (where pixels == 255)
+    unique_values = np.unique(thresh)
+    white_pixel_count = np.sum(thresh == 255)
+    print(f"Unique thresh values: {unique_values}")
+    print(f"White pixel count: {white_pixel_count}")
+    
+    # If no white pixels are found, try adjusting constant C to a negative value
+    if white_pixel_count == 0:
+        print("No white pixels detected; trying alternative threshold parameters...")
+        thresh = cv2.adaptiveThreshold(
+            gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, -2
+        )
+        plt.imshow(thresh, cmap='gray')
+        plt.title('Adaptive Thresholded Image (Block=15, C=-2)')
+        plt.show()
+        unique_values = np.unique(thresh)
+        white_pixel_count = np.sum(thresh == 255)
+        print(f"Alternative unique thresh values: {unique_values}")
+        print(f"Alternative white pixel count: {white_pixel_count}")
+    
     coords = np.column_stack(np.where(thresh == 255))
+    print(f"Coords shape: {coords.shape}")
+    
     if coords.size == 0:
         print("No printed region found in the card.")
         return 0
     y_min, x_min = coords.min(axis=0)
     y_max, x_max = coords.max(axis=0)
     
-    # Debugging info
     print(f"Bounding box: x_min={x_min}, y_min={y_min}, x_max={x_max}, y_max={y_max}")
     print(f"Image shape: {warped.shape}")
     
-    # Borders (assuming the warped image includes the border)
     top_border = y_min
     bottom_border = warped.shape[0] - y_max
     left_border = x_min
@@ -206,7 +236,8 @@ def grade_card(image_path):
     }
 
 if __name__ == "__main__":
-    image_path = r"C:\Users\dlaev\mintcheck\data\synthetic_card_centered.jpg"
+    # Use the real Pokémon card image
+    image_path = r"C:\Users\dlaev\mintcheck\data\8.jpg"
     result = grade_card(image_path)
     if result:
         print("Grading Results:")
