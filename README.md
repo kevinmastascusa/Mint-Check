@@ -91,6 +91,14 @@ git remote add origin https://github.com/kevinmastascusa/Mint-Check.git
 git push -u origin master
 ```
 
+## Git Email Configuration
+
+If you encounter an email privacy error when pushing commits, update your Git config to use your GitHub noreply email:
+```sh
+git config --global user.email "your-noreply-email@users.noreply.github.com"
+```
+Alternatively, adjust your email privacy settings in https://github.com/settings/emails.
+
 ## License
 
 This project is licensed under the MIT License.
