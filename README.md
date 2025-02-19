@@ -91,6 +91,23 @@ git remote add origin https://github.com/kevinmastascusa/Mint-Check.git
 git push -u origin master
 ```
 
+## Using on Windows
+
+On Windows, you can run the above commands using Git Bash (included with Git for Windows) or manually in Command Prompt if Git is in your PATH.  
+For the provided shell script (`push_to_github.sh`):
+1. Open Git Bash.
+2. Navigate to your project folder:  
+   ```sh
+   cd /c/Users/dlaev/mintcheck
+   ```
+3. Make the script executable (if needed) and run it:  
+   ```sh
+   chmod +x push_to_github.sh
+   ./push_to_github.sh
+   ```
+
+Alternatively, copy-paste the commands into your terminal.
+
 ## Git Email Configuration
 
 If you encounter an email privacy error when pushing commits, update your Git config to use your GitHub noreply email:
