@@ -9,20 +9,25 @@ def gamma_correction(image, gamma=0.5):
     table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
     return cv2.LUT(image, table)
 
+# New: Contrast enhancement via CLAHE
+def enhance_contrast(gray):
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    return clahe.apply(gray)
+
 def load_and_preprocess(image_path):
     """
     1) Read the image.
     2) Convert to grayscale.
-    3) Possibly do some noise reduction.
-    4) Apply gamma correction if image is overexposed.
+    3) Apply contrast enhancement if image is overexposed.
+    4) Optionally, do some noise reduction.
     """
     img = cv2.imread(image_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # Optional: denoise if needed
     gray = cv2.GaussianBlur(gray, (3,3), 0)
+    # If the image is overexposed (mean near 255), enhance contrast using CLAHE
     if np.mean(gray) >= 250:
-        print("Image is overexposed; applying gamma correction")
-        gray = gamma_correction(gray, gamma=0.5)
+        print("Image is overexposed; applying contrast enhancement via CLAHE")
+        gray = enhance_contrast(gray)
     return img, gray
 
 def find_card_contour(img, gray):
