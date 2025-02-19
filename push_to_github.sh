@@ -1,5 +1,4 @@
 #!/bin/bash
-# Initialize the Git repository if not already initialized
 git init
 git add .
 git commit -m "Initial commit"
