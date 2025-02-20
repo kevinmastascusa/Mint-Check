@@ -1,0 +1,3 @@
+# To install the Hugging Face transformers library and torch, run:
+pip install transformers
+pip install torch
