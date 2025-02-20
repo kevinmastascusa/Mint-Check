@@ -12,4 +12,8 @@ git commit -m "Initial commit excluding large file"
 git remote remove origin 2>/dev/null
 git remote add origin https://github.com/kevinmastascusa/Mint-Check.git
 git push -u origin master --force
+#Generate documentation
+./generate_doc.sh
+# Push the changes to GitHub
+git push origin master
 

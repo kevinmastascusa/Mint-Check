@@ -1,0 +1,15 @@
+# Pip Dependency Conflict Notes:
+#
+# 1. conda-repo-cli 1.0.75 requires requests_mock. To install:
+#    pip install requests_mock
+#
+# 2. conda-repo-cli 1.0.75 requires clyent==1.2.1, but you have clyent 1.2.2.
+#    To downgrade:
+#    pip install clyent==1.2.1
+#
+# 3. conda-repo-cli 1.0.75 requires requests==2.31.0, but you have requests 2.32.3.
+#    To downgrade:
+#    pip install requests==2.31.0
+#
+# Note: The dependency resolver warns about these conflicts but continues installation.
+# Consider adjusting or ignoring these conflicts based on your project requirements.

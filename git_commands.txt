@@ -1,6 +1,12 @@
-# To run the commands on Git Bash, use one command per line:
+# Change directory to your repository:
+cd /c/Users/dlaev/mintcheck
+
+# Commit any pending changes:
 git add .
 git commit -m "Save pending changes"
 
-# Or chain them with &&:
-git add . && git commit -m "Save pending changes"
+# Remove the large file from your repository history:
+./remove_large_file.sh
+
+# Force push your changes to update the remote repository:
+git push -u origin master --force
