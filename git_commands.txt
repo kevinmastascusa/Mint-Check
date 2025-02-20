@@ -1,0 +1,6 @@
+# To run the commands on Git Bash, use one command per line:
+git add .
+git commit -m "Save pending changes"
+
+# Or chain them with &&:
+git add . && git commit -m "Save pending changes"
